@@ -72,6 +72,30 @@ class Node
 		end
 	end
 
+	def dfs_rec(target)
+		helper = dfs_rec_helper(self, target)
+		puts "Node not found in tree" if helper.nil?
+	end
+
+	def dfs_rec_helper(current_node, target)
+		puts current_node.value if !current_node.nil?
+		if current_node == nil
+			return nil
+		elsif current_node.value == target
+			puts current_node
+			return current_node
+		end
+
+		left = dfs_rec_helper(current_node.child_left, target)
+		right = dfs_rec_helper(current_node.child_right, target)
+
+		return left if !left.nil?
+
+		return right if !right.nil?
+
+		return nil
+	end
+
 end
 
 	def build_tree(array)
@@ -103,6 +127,6 @@ end
 
 tree = build_tree([100, 1, 4, 23, 8, 9, 5, 7, 67, 6345, 324])
 check_tree(tree)
-tree.depth_first_search(23)
-tree.breadth_first_search(23)
-
+#tree.depth_first_search(23)
+#tree.breadth_first_search(23)
+tree.dfs_rec(7)

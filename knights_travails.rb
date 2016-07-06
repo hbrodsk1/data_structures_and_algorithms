@@ -9,23 +9,17 @@ end
 
 
 class Node
-	attr_accessor :position, :parent, :children 
+	attr_accessor :position, :parent, :children, :level
 
-	def initialize(position, parent = nil, children = [])
+	def initialize(position, level = 0, parent = nil, children = [])
 		@position = position
 		@parent = parent
 		@children = children
+		@level = level
 	end
 end
 
 class Knight
-
-	def initialize(root, destination)
-		@root = Node.new(root)
-		@destination = Node.new(destination)
-
-		possible_moves(@root)
-	end
 
 
 def possible_moves(node)
@@ -45,39 +39,58 @@ def possible_moves(node)
 		pair[0] <= 8 && pair[0] >= 0 && pair[1] <= 8 && pair[1] >= 0
 	end
 
-	#legal_moves
-	children_nodes(legal_moves)
+	return children_nodes(legal_moves, node)
 end
 
-def children_nodes(arr)
+def children_nodes(arr, root)
+	ret = []
 	arr.each do |child|
-		new_node = Node.new(child)
-		@root.children << new_node
-		new_node.parent = @root
+		new_node = Node.new(child, root.level + 1)
+		new_node.parent = root
+		ret << new_node
 	end
- 	breadth_first_search(@root.children)	
+	return ret
 end
 
-	def breadth_first_search(arr)
-		queue = arr
-		current_node = queue.shift
+	def breadth_first_search(start_space, end_space)
+		start = Node.new(start_space)
+		end_node = Node.new(end_space)
+
+		queue = []
+		queue << start
+
+		visited = Hash.new
+		visited[start.position] = true
 		
+
 		while !queue.empty?
-			if current_node.position == @destination.position
-				puts "found it!"
+			current_node = queue.shift
+
+			if current_node.position == end_node.position
+				puts "You made it in #{current_node.level} moves!"
+				puts "Here is your path:"
 				return current_node
-			else breadth_first_search(queue)
-			end 
+			else
+				children = possible_moves(current_node)
+				children.select! { |node| !visited.has_key?(node.position) }
+				children.each { |node| visited[node.position] = true }
+				queue += children
+			end
 		end
+		
 	end
 end
 
 def knight_moves(start_space, end_space)
 	Board.new
-	Knight.new(start_space, end_space)
+	knight = Knight.new
+	final = knight.breadth_first_search(start_space, end_space)
 
-	
+	until final == nil
+		p final.position
+		final = final.parent
+	end
 end
 
 
-knight_moves([4,4], [6,3])
+knight_moves([0,0], [2,0])
